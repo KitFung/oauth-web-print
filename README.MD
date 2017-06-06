@@ -4,7 +4,7 @@
 - python 2 or 3
 - bower
 
-## How to run
+## Installation and Execution
 
 Use Python 2,
 
@@ -23,6 +23,11 @@ $ source env/bin/activate
 $ pip install wheel
 $ pip install -r requirement.txt
 $ bower install
+```
+
+To launch the website,
+```
+$ python app.py
 ```
 
 ## Copyright and License
