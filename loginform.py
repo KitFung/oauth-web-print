@@ -7,14 +7,18 @@ class LoginForm(form.Form):
     username = fields.TextField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
 
-    def validate_login(self, field):
+    def validate(self):
         user = self.get_user()
 
         if user is None:
-            raise validators.ValidationError('Invalid user')
+            return False
+            #raise validators.ValidationError('Invalid user')
 
         if user.password != self.password.data:
-            raise validators.ValidationError('Invalid password')
+            return False
+            #raise validators.ValidationError('Invalid password')
+
+        return True
 
     def get_user(self):
         return User.get(self.username.data)
