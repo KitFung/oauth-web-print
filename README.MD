@@ -3,6 +3,8 @@
 ## Prerequest
 - python 2 or 3
 - bower
+- nodejs-legacy
+- npm (for installing bower)
 
 ## How to run
 
