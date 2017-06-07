@@ -7,9 +7,12 @@ import flask_login as login
 from views import AdminIndexView, BlankView
 from user import User
 from db import init_mysql
+from facebook import init_fb
+
 # Create Flask application
 app = Flask(__name__)
 init_mysql(app)
+init_fb(app)
 
 # bower_components
 

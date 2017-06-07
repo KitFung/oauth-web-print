@@ -1,9 +1,14 @@
 import flask_login as login
 import flask_admin as admin
 from flask_admin import helpers, expose
-from flask import redirect, url_for, request, render_template
+from flask_oauthlib.client import OAuth, OAuthException
+from flask import redirect, url_for, request, render_template, session
+
+## temp
+from user import User
 
 from loginform import LoginForm
+from facebook import facebook
 import stub as stub
 
                        
@@ -140,16 +145,37 @@ class AdminIndexView(admin.AdminIndexView):
 
     @expose('/login/', methods=('GET', 'POST'))
     def login_view(self):
-        # handle user login
-        form = LoginForm(request.form)
-        if helpers.validate_form_on_submit(form):
-            user = form.get_user()
+        callback = url_for(
+            '.facebook_authorized',
+            next=request.args.get('next') or request.referrer or None,
+            _external=True
+        )
+        return facebook.authorize(callback=callback)
+
+    @expose('/login/authorized')
+    def facebook_authorized(self):
+        resp = facebook.authorized_response()
+        if resp is None:
+            return 'Access denied: reason=%s error=%s' % (
+                request.args['error_reason'],
+                request.args['error_description']
+            )
+        if isinstance(resp, OAuthException):
+            return 'Access denied: %s' % resp.message
+
+        session['oauth_token'] = (resp['access_token'], '')
+        me = facebook.get('/me')
+
+        print("================== %s" % me.data['id'])
+        user = User.get(me.data['id'])
+        if user is None:
+            return 'Logged in as id=%s name=%s redirect=%s, Please add your id to database' % \
+                (me.data['id'], me.data['name'], request.args.get('next'))
+        else:
             login.login_user(user)
 
-        if login.current_user.is_authenticated:
-            return redirect(url_for('.index'))
-        self._template_args['form'] = form
-        return render_template('sb-admin/pages/login.html', form=form)
+        return redirect(url_for('.index'))
+
 
     @expose('/logout/')
     def logout_view(self):
