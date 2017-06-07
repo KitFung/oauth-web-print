@@ -25,6 +25,17 @@ $ pip install -r requirement.txt
 $ bower install
 ```
 
+Init DB (Assume root user not password)
+```
+create database cnl;
+use cnl;
+CREATE TABLE `user` (
+	`user_name` VarChar( 45 ) NULL,
+	`user_fb_id` VarChar( 100 ) NOT NULL,
+	PRIMARY KEY ( `user_fb_id` ) )
+ENGINE = InnoDB;
+```
+
 ## Copyright and License
 Copyright 2017 CNL Group 7. Code released under MIT license.
 
