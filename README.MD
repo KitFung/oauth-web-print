@@ -5,6 +5,7 @@
 - bower
 - nodejs-legacy
 - npm (for installing bower)
+- python-dev, libcups2-dev (in debian-based system (other distros unknown); for installing pycups)
 
 ## Installation and Execution
 
