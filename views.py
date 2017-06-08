@@ -4,9 +4,23 @@ from flask_admin import helpers, expose
 from flask import redirect, url_for, request, render_template
 
 from loginform import LoginForm
+from loginform import PrintingForm # for printing form
+from flask_wtf import FlaskForm # for printing form
+from werkzeug.utils import secure_filename # for printing form
+import os # added for printing form
+
 import stub as stub
 
-                       
+import cups # main purpose
+
+# some variables/functions for printing check
+UPLOAD_FOLDER = '/tmp/oauth-web-print-uploads/'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+ 
+
 # Create customized index view class that handles login & registration
 class AdminIndexView(admin.AdminIndexView):
     
@@ -74,15 +88,62 @@ class AdminIndexView(admin.AdminIndexView):
         self._stubs()    
         self.header = "Tables"
         return render_template('sb-admin/pages/tables.html', admin_view=self)
-        
-    @expose('/forms')
+
+# FORMS: MODIFIED for printing        
+    @expose('/forms', methods=('GET', 'POST'))
     def forms(self):        
         if not login.current_user.is_authenticated:
             return redirect(url_for('.login_view'))
             
+        form = PrintingForm(request.form) #added
         self._stubs()    
-        self.header = "Forms"
-        return render_template('sb-admin/pages/forms.html', admin_view=self)         
+        self.header = "Printing!"
+        self._template_args['form'] = form #added
+
+
+        # if POSTED and validated
+        if request.method == 'POST' and form.validate_on_submit():
+            file = request.files['file']
+
+            # check file type is valid, e.g. XXX.pdf
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+
+                # temp dir for uploading
+                try:
+                    os.stat(UPLOAD_FOLDER)
+                except:
+                    os.mkdir(UPLOAD_FOLDER)
+
+                file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+                # print form.pagerange.data, form.side.data, form.numberup.data
+
+
+                # set options
+
+                options = {}
+                # options: pagerange
+                if not form.pagerange.data == '':
+                    options['page-ranges'] = "".join(form.pagerange.data.encode('ascii','ignore').split())
+                # options: side
+                if form.side.data == None or form.side.data == 'B':
+                    options['sides'] = 'two-sided-long-edge'
+                else:
+                    options['sides'] = 'one-sided'
+                # options: number-up
+                if not form.numberup.data == 1:
+                    options['number-up'] = form.numberup.data
+
+
+                # connect and print
+
+                conn = cups.Connection()
+                conn.printFile(form.printer.data, os.path.join(UPLOAD_FOLDER, filename), form.printer.data + '_' + filename , options)
+
+
+
+        return render_template('sb-admin/pages/forms.html', admin_view=self, form=form)         
         
     @expose('/ui/panelswells')
     def panelswells(self):        

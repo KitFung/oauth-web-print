@@ -1,3 +1,5 @@
 Flask
 Flask-Admin
 Flask-Login
+Flask-WTF
+pycups
