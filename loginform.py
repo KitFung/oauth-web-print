@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 
 import cups
+import sys
 
 
 class PrintingForm(FlaskForm):
@@ -62,8 +63,13 @@ class PrintingForm(FlaskForm):
 
     def validate(self):
 
-        if not self.valid_pagerange("".join(self.pagerange.data.encode('ascii', 'ignore').split()) ) == True:
-            return False
+        print("===", type(self.pagerange.data))
+        if sys.version_info >= (3, 0):
+            if not self.valid_pagerange("".join(self.pagerange.data.split()) ) == True:
+                return False
+        else:
+            if not self.valid_pagerange("".join(self.pagerange.data.encode('ascii', 'ignore').split()) ) == True:
+                return False
 
         return True
     

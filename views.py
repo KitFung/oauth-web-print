@@ -16,6 +16,7 @@ from facebook import facebook
 import stub as stub
 
 import cups # main purpose
+import sys
 
 # some variables/functions for printing check
 UPLOAD_FOLDER = '/tmp/oauth-web-print-uploads/'
@@ -129,7 +130,12 @@ class AdminIndexView(admin.AdminIndexView):
                 options = {}
                 # options: pagerange
                 if not form.pagerange.data == '':
-                    options['page-ranges'] = "".join(form.pagerange.data.encode('ascii','ignore').split())
+                    d = ""
+                    if sys.version_info >= (3, 0):
+                        d = form.pagerange.data
+                    else:
+                        d = form.pagerange.data.encode('ascii','ignore')
+                    options['page-ranges'] = "".join(d.split())
                 # options: side
                 if form.side.data == None or form.side.data == 'B':
                     options['sides'] = 'two-sided-long-edge'
