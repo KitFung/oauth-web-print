@@ -18,6 +18,10 @@ import stub as stub
 import cups # main purpose
 import sys
 
+## check user identity using facebook group
+import urllib3
+import json
+
 # some variables/functions for printing check
 UPLOAD_FOLDER = '/tmp/oauth-web-print-uploads/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
@@ -230,16 +234,36 @@ class AdminIndexView(admin.AdminIndexView):
             return 'Access denied: %s' % resp.message
 
         session['oauth_token'] = (resp['access_token'], '')
+        groupUrl = 'https://graph.facebook.com/v2.9/220154455162141/members?access_token='+resp['access_token']
+        print(groupUrl)
+        http = urllib3.PoolManager()
+        req = http.request('GET', groupUrl)
+        j = json.loads(req.data.decode('utf-8'))
+        idlist = []
+        for each in j['data']:
+            print(each['id'])
+            idlist.append(each['id'])
+
         me = facebook.get('/me')
 
         print("================== %s" % me.data['id'])
+        user = User.get(me.data['id'])
+        
+        if me.data['id'] in idlist:
+            login.login_user(user)
+        else:
+            return redirect(url_for('.login_view'))
+            #return 'Logged in as id=%s name=%s redirect=%s, Please add your id to database' % \
+            #    (me.data['id'], me.data['name'], request.args.get('next'))
+
+        '''
         user = User.get(me.data['id'])
         if user is None:
             return 'Logged in as id=%s name=%s redirect=%s, Please add your id to database' % \
                 (me.data['id'], me.data['name'], request.args.get('next'))
         else:
             login.login_user(user)
-
+        '''
         return redirect(url_for('.index'))
 
 

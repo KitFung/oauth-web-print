@@ -11,14 +11,14 @@ class User(UserMixin):
     password = None
 
     def __init__(self, id):
-        cur = mysql.connect().cursor()
-        cur.execute('''SELECT user_name, user_fb_id FROM cnl.user''')
-        rv = cur.fetchall()
-        USERS = dict(rv)
-        if id not in USERS:
-            raise UserNotFoundError()
+        #cur = mysql.connect().cursor()
+        #cur.execute('''SELECT user_name, user_fb_id FROM cnl.user''')
+        #rv = cur.fetchall()
+        #USERS = dict(rv)
+        #if id not in USERS:
+        #    raise UserNotFoundError()
         self.id = id
-        self.password = USERS[id]
+        self.password = '123'
 
     @classmethod
     def get(cls, id):
