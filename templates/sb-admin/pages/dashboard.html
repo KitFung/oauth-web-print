@@ -10,34 +10,7 @@
 {% from "sb-admin/macros/dashboard/chat.html" import chat %}
 
 {% block body %}
-<div class="row">
-	<div class="col-lg-3 col-md-6">
-		{{count_icon(26, "New Comments!", "comments", "primary", "#")}}
-	</div>
-	<div class="col-lg-3 col-md-6">
-		{{count_icon(12, "New Tasks!", "tasks", "green", "#")}}
-	</div>
-	<div class="col-lg-3 col-md-6">
-		{{count_icon(124, "New Orders!", "shopping-cart", "yellow", "#")}}
-	</div>
-	<div class="col-lg-3 col-md-6">
-		{{count_icon(13, "Support Tickets!", "support", "red", "#")}}
-	</div>
-</div>
 
-<div class="row">
-    <div class="col-lg-8">
-        {{area_chart("Area Chart Example")}}
-        {{bar_chart("Bar Chart Example")}}
-        {{timeline("Responsive Timeline")}}
-    </div>
-    <div class="col-lg-4">
-        {{notification("Notifications Panel")}}
-        {{donut("Donut Chart Example")}}
-        {{chat("Chat")}}
-    </div>
-</div>
-	
 {% endblock %}
 
 {% block tail %}
