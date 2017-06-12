@@ -22,6 +22,11 @@ import sys
 import urllib3
 import json
 
+#variable for group authentication
+groupUrl = 'https://graph.facebook.com/v2.9/220154455162141/members?access_token='
+logoutUrl = 'https://www.facebook.com/logout.php?next=/sb-admin/pages/test.html&access_token='
+globaltoken = ''
+
 # some variables/functions for printing check
 UPLOAD_FOLDER = '/tmp/oauth-web-print-uploads/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
@@ -56,12 +61,12 @@ class AdminIndexView(admin.AdminIndexView):
     @expose('/')
     def index(self):
         if not login.current_user.is_authenticated:
-            return redirect(url_for('.login_view'))
+            return render_template('sb-admin/pages/test.html')
+            #return redirect(url_for('.login_view'))
             
         self._stubs()    
         self.header = "Dashboard"
         return render_template('sb-admin/pages/dashboard.html', admin_view=self)
-    
     @expose('/blank')
     def blank(self):        
         if not login.current_user.is_authenticated:
@@ -70,7 +75,6 @@ class AdminIndexView(admin.AdminIndexView):
         self._stubs()    
         self.header = "Blank"
         return render_template('sb-admin/pages/blank.html', admin_view=self)
-        
     @expose('/flot')
     def flot(self):        
         if not login.current_user.is_authenticated:
@@ -213,6 +217,7 @@ class AdminIndexView(admin.AdminIndexView):
         self.header = "Grid"
         return render_template('sb-admin/pages/ui/grid.html', admin_view=self)         
 
+    @expose('/login/')
     @expose('/login/', methods=('GET', 'POST'))
     def login_view(self):
         callback = url_for(
@@ -221,23 +226,30 @@ class AdminIndexView(admin.AdminIndexView):
             _external=True
         )
         return facebook.authorize(callback=callback)
-
+    
     @expose('/login/authorized')
     def facebook_authorized(self):
         resp = facebook.authorized_response()
         if resp is None:
+            return render_template('sb-admin/pages/test.html')
+            '''
             return 'Access denied: reason=%s error=%s' % (
                 request.args['error_reason'],
                 request.args['error_description']
             )
+            '''
+
         if isinstance(resp, OAuthException):
             return 'Access denied: %s' % resp.message
 
+        global globaltoken 
+        globaltoken = resp['access_token']
         session['oauth_token'] = (resp['access_token'], '')
-        groupUrl = 'https://graph.facebook.com/v2.9/220154455162141/members?access_token='+resp['access_token']
-        print(groupUrl)
+        #print(groupUrl)
+
+        #get group members
         http = urllib3.PoolManager()
-        req = http.request('GET', groupUrl)
+        req = http.request('GET', groupUrl+resp['access_token'])
         j = json.loads(req.data.decode('utf-8'))
         idlist = []
         for each in j['data']:
@@ -252,9 +264,8 @@ class AdminIndexView(admin.AdminIndexView):
         if me.data['id'] in idlist:
             login.login_user(user)
         else:
-            return redirect(url_for('.login_view'))
-            #return 'Logged in as id=%s name=%s redirect=%s, Please add your id to database' % \
-            #    (me.data['id'], me.data['name'], request.args.get('next'))
+            #need to logout first
+            return render_template('sb-admin/pages/test.html')
 
         '''
         user = User.get(me.data['id'])
@@ -269,10 +280,18 @@ class AdminIndexView(admin.AdminIndexView):
 
     @expose('/logout/')
     def logout_view(self):
+        session.pop('oauth_token', None)
         login.logout_user()
-        return redirect(url_for('.index'))
-        
+
+        http = urllib3.PoolManager()
+        print(">>>>>>>>>>>>>>>", globaltoken)
+        req = http.request('GET', logoutUrl+globaltoken)
+        #return redirect(url_for('.index'))
+        return render_template('sb-admin/pages/test.html')
+       
+'''
 class BlankView(admin.BaseView):
     @expose('/')
     def index(self):
         return render_template('sb-admin/pages/blank.html', admin_view=self)
+'''

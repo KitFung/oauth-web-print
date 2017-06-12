@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>Python Flask App</title>
+
+
+		<link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+		<link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+
+
+	</head>
+
+	<script>
+window.fbAsyncInit = function() {
+	FB.init({
+		appId : '1465823483485054',
+		autoLogAppEvents : true,
+		xfbml            : true,
+		version          : 'v2.9'
+	});
+	FB.AppEvents.logPageView();
+};
+
+(function(d, s, id){
+	var js, fjs = d.getElementsByTagName(s)[0];
+	if (d.getElementById(id)) {return;}
+	js = d.createElement(s); js.id = id;
+	js.src = "//connect.facebook.net/en_US/sdk.js";
+	fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+	</script>
+	<script>
+// Only works after `FB.init` is called
+function myFacebookLogin() {
+	FB.getLoginStatus(function(response) {
+		if (response.status === 'connected') {
+			console.log('Logged in.');
+			FB.logout();
+		}
+		else {
+			FB.login();
+			myFacebookLogout();
+		}
+	});
+}
+function myFacebookLogout() {
+	FB.getLoginStatus(function(response) {
+		if (response.status === 'connected') {
+				console.log('Logged in.');
+				FB.logout();
+		}
+	});
+}
+//window.onload = myFacebookLogin;
+	</script>
+	<body>
+			<!-- <button onclick="myFacebookLogin()">Login with Facebook</button> -->
+	<div class="container">
+			<div class="header">
+				<nav>
+					<ul class="nav nav-pills pull-right">
+
+		<!--<li role="presentation"><a href="{{ url_for('admin.login_view') }}" >Sign In</a> -->
+					</ul>
+				</nav>
+				<h3 class="text-muted">CNLAB TEAM07</h3>
+			</div>
+
+			<div class="jumbotron">
+				<h1>Oauth Printing App</h1>
+				<p class="lead"></p>
+				<p><a class="btn btn-lg btn-success" href="{{ url_for('admin.login_view') }}" role="button">Sign in</a>
+				</p>
+			</div>
+
+
+			<footer class="footer">
+				<p>&copy; nalab07 2017</p>
+			</footer>
+
+		</div>
+	</body>
+
+</html>

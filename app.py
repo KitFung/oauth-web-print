@@ -4,7 +4,7 @@ from flask import Flask, url_for, redirect, render_template, request, send_from_
 import flask_admin as admin
 import flask_login as login
 
-from views import AdminIndexView, BlankView
+from views import AdminIndexView
 from user import User
 from db import init_mysql
 from facebook import init_fb
